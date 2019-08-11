@@ -13,8 +13,7 @@ public class SalesApp {
             return;
         }
 
-        SalesDao salesDao = new SalesDao();
-        Sales sales = salesDao.getSalesBySalesId(salesId);
+        Sales sales = getSalesBySalesId(salesId);
 
         Date today = new Date();
         if (today.after(sales.getEffectiveTo())
@@ -22,8 +21,8 @@ public class SalesApp {
             return;
         }
 
-        SalesReportDao salesReportDao = new SalesReportDao();
-        List<SalesReportData> reportDataList = salesReportDao.getReportData(sales);
+        List<SalesReportData> reportDataList = getSalesReportDataBySales(sales);
+
         List<SalesReportData> filteredReportDataList = new ArrayList<SalesReportData>();
 
         for (SalesReportData data : reportDataList) {
@@ -56,6 +55,16 @@ public class SalesApp {
         EcmService ecmService = new EcmService();
         ecmService.uploadDocument(report.toXml());
 
+    }
+
+    private List<SalesReportData> getSalesReportDataBySales(Sales sales) {
+        SalesReportDao salesReportDao = new SalesReportDao();
+        return salesReportDao.getReportData(sales);
+    }
+
+    private Sales getSalesBySalesId(String salesId) {
+        SalesDao salesDao = new SalesDao();
+        return salesDao.getSalesBySalesId(salesId);
     }
 
     private SalesActivityReport generateReport(List<String> headers, List<SalesReportData> reportDataList) {
