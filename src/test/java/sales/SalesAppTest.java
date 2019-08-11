@@ -10,8 +10,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SalesAppTest {
@@ -22,6 +21,8 @@ public class SalesAppTest {
     SalesDao salesDao;
     @Mock
     SalesReportDao salesReportDao;
+    @Mock
+    EcmService ecmService;
 
 //	@Test
 //	public void testGenerateReport() {
@@ -114,7 +115,7 @@ public class SalesAppTest {
     }
 
     @Test
-    public void testGetReportHeaders_givenIsNatTradeFlase_thenReturnCorrectHeadersContainsLocalTime() {
+    public void testGetReportHeaders_givenIsNatTradeFalse_thenReturnCorrectHeadersContainsLocalTime() {
         boolean isNatTrade = false;
 
         List<String> reportHeaders = salesApp.getReportHeaders(isNatTrade);
@@ -123,5 +124,18 @@ public class SalesAppTest {
         assertEquals("Sales Name", reportHeaders.get(1));
         assertEquals("Activity", reportHeaders.get(2));
         assertEquals("Local Time", reportHeaders.get(3));
+    }
+
+    @Test
+    public void testUploadReportAsXml_givenSalesActivityReport_thenVerifyReportToXmlAndUploadDocumentUsage() {
+        String fakeXmlString = "XML_STRING";
+        SalesActivityReport salesActivityReport = mock(SalesActivityReport.class);
+        when(salesActivityReport.toXml()).thenReturn(fakeXmlString);
+        doNothing().when(ecmService).uploadDocument(any());
+
+        salesApp.uploadReportAsXml(salesActivityReport);
+
+        verify(salesActivityReport, times(1)).toXml();
+        verify(ecmService, times(1)).uploadDocument(fakeXmlString);
     }
 }
