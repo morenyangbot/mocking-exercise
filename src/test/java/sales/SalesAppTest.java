@@ -138,4 +138,66 @@ public class SalesAppTest {
         verify(salesActivityReport, times(1)).toXml();
         verify(ecmService, times(1)).uploadDocument(fakeXmlString);
     }
+
+    @Test
+    public void testIsSalesReportDataValid_givenSalesReportDataWithTypeIsNOTSalesActivity_thenReturnFalse() {
+        String salesDataType = "NOT_ACTIVITY";
+
+        SalesReportData notSalesActivityTypeSalesReportData = mock(SalesReportData.class);
+        when(notSalesActivityTypeSalesReportData.getType()).thenReturn(salesDataType);
+
+        boolean salesReportDataValid = salesApp.isSalesReportDataValid(true, notSalesActivityTypeSalesReportData);
+
+        assertFalse(salesReportDataValid);
+        verify(notSalesActivityTypeSalesReportData, times(0)).isConfidential();
+        verify(notSalesActivityTypeSalesReportData, times(1)).getType();
+    }
+
+    @Test
+    public void testIsSalesReportDataValid_givenSalesReportDataWithTypeIsSalesActivityAndIsConfidentialIsFalse_thenReturnTrue() {
+        String salesDataType = "SalesActivity";
+
+        SalesReportData salesActivitySalesReportData = mock(SalesReportData.class);
+        when(salesActivitySalesReportData.getType()).thenReturn(salesDataType);
+        when(salesActivitySalesReportData.isConfidential()).thenReturn(false);
+
+
+        boolean salesReportDataValid = salesApp.isSalesReportDataValid(true, salesActivitySalesReportData);
+
+        assertTrue(salesReportDataValid);
+        verify(salesActivitySalesReportData, times(1)).isConfidential();
+        verify(salesActivitySalesReportData, times(1)).getType();
+    }
+
+    @Test
+    public void testIsSalesReportDataValid_givenIsSupervisorIsTrueSalesReportDataWithTypeIsSalesActivityAndIsConfidentialIsTrue_thenReturnTrue() {
+        String salesDataType = "SalesActivity";
+
+        boolean isSupervisor = true;
+        SalesReportData salesActivitySalesReportData = mock(SalesReportData.class);
+        when(salesActivitySalesReportData.getType()).thenReturn(salesDataType);
+        when(salesActivitySalesReportData.isConfidential()).thenReturn(true);
+
+        boolean salesReportDataValid = salesApp.isSalesReportDataValid(isSupervisor, salesActivitySalesReportData);
+
+        assertTrue(salesReportDataValid);
+        verify(salesActivitySalesReportData, times(1)).isConfidential();
+        verify(salesActivitySalesReportData, times(1)).getType();
+    }
+
+    @Test
+    public void testIsSalesReportDataValid_givenIsSupervisorIsFalseSalesReportDataWithTypeIsSalesActivityAndIsConfidentialIsTrue_thenReturnFalse() {
+        String salesDataType = "SalesActivity";
+
+        boolean isSupervisor = false;
+        SalesReportData salesActivitySalesReportData = mock(SalesReportData.class);
+        when(salesActivitySalesReportData.getType()).thenReturn(salesDataType);
+        when(salesActivitySalesReportData.isConfidential()).thenReturn(true);
+
+        boolean salesReportDataValid = salesApp.isSalesReportDataValid(isSupervisor, salesActivitySalesReportData);
+
+        assertFalse(salesReportDataValid);
+        verify(salesActivitySalesReportData, times(1)).isConfidential();
+        verify(salesActivitySalesReportData, times(1)).getType();
+    }
 }

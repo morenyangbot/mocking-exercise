@@ -28,19 +28,7 @@ public class SalesApp {
 
         List<SalesReportData> reportDataList = getSalesReportDataBySales(sales);
 
-        List<SalesReportData> filteredReportDataList = new ArrayList<SalesReportData>();
-
-        for (SalesReportData data : reportDataList) {
-            if ("SalesActivity".equalsIgnoreCase(data.getType())) {
-                if (data.isConfidential()) {
-                    if (isSupervisor) {
-                        filteredReportDataList.add(data);
-                    }
-                } else {
-                    filteredReportDataList.add(data);
-                }
-            }
-        }
+        List<SalesReportData> filteredReportDataList = getFilteredReportDataList(isSupervisor, reportDataList);
 
         List<SalesReportData> tempList = new ArrayList<SalesReportData>();
         for (int i = 0; i < reportDataList.size() || i < maxRow; i++) {
@@ -54,6 +42,30 @@ public class SalesApp {
 
         uploadReportAsXml(report);
 
+    }
+
+    protected List<SalesReportData> getFilteredReportDataList(boolean isSupervisor, List<SalesReportData> reportDataList) {
+        List<SalesReportData> filteredReportDataList = new ArrayList<SalesReportData>();
+
+        for (SalesReportData data : reportDataList) {
+            if (isSalesReportDataValid(isSupervisor, data)) {
+                filteredReportDataList.add(data);
+            }
+        }
+        return filteredReportDataList;
+    }
+
+    protected boolean isSalesReportDataValid(boolean isSupervisor, SalesReportData data) {
+        if ("SalesActivity".equalsIgnoreCase(data.getType())) {
+            if (data.isConfidential()) {
+                if (isSupervisor) {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected void uploadReportAsXml(SalesActivityReport report) {
