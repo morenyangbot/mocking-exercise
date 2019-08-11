@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -199,5 +200,32 @@ public class SalesAppTest {
         assertFalse(salesReportDataValid);
         verify(salesActivitySalesReportData, times(1)).isConfidential();
         verify(salesActivitySalesReportData, times(1)).getType();
+    }
+
+    @Test
+    public void testGetFilteredReportDataList_givenFiveDataWithThreeValid_thenFilteredListContainsThreeRecord() {
+        SalesApp spySalesApp = spy(new SalesApp());
+        boolean isSupervisor = true;
+
+        SalesReportData validSalesReportData = mock(SalesReportData.class);
+        doReturn(true).when(spySalesApp).isSalesReportDataValid(isSupervisor, validSalesReportData);
+        SalesReportData wrongSalesReportData = mock(SalesReportData.class);
+        doReturn(false).when(spySalesApp).isSalesReportDataValid(isSupervisor, wrongSalesReportData);
+
+        List<SalesReportData> filteredReportDataList = spySalesApp.getFilteredReportDataList(isSupervisor,
+                Arrays.asList(
+                        validSalesReportData,
+                        validSalesReportData,
+                        wrongSalesReportData,
+                        validSalesReportData,
+                        wrongSalesReportData)
+        );
+
+        assertEquals(3L, filteredReportDataList.size());
+        assertEquals(validSalesReportData, filteredReportDataList.get(0));
+        assertEquals(validSalesReportData, filteredReportDataList.get(1));
+        assertEquals(validSalesReportData, filteredReportDataList.get(2));
+        verify(spySalesApp, times(3)).isSalesReportDataValid(isSupervisor, validSalesReportData);
+        verify(spySalesApp, times(2)).isSalesReportDataValid(isSupervisor, wrongSalesReportData);
     }
 }
