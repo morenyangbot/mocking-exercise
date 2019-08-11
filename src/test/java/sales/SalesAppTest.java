@@ -26,15 +26,6 @@ public class SalesAppTest {
     @Mock
     EcmService ecmService;
 
-//	@Test
-//	public void testGenerateReport() {
-//
-//		SalesApp salesApp = new SalesApp();
-//		salesApp.generateSalesActivityReport("DUMMY", 1000, false, false);
-//
-//	}
-
-
     @Test
     public void testIsSalesIdValid_givenSalesWithIdNull_thenReturnFalse() {
         String wrongId = null;
@@ -251,4 +242,100 @@ public class SalesAppTest {
 
         assertEquals(1, limitedSalesReportData.size());
     }
+
+
+    @Test
+    public void testGetSalesBySalesId_givenASalesId_thenReturnASalesWithCorrectIdAndSalesDaoCalled() {
+        String salesId = "S123";
+        Sales mockSales = mock(Sales.class);
+        when(salesDao.getSalesBySalesId(anyString())).thenReturn(mockSales);
+
+        Sales sales = salesApp.getSalesBySalesId(salesId);
+
+        assertEquals(mockSales, sales);
+        verify(salesDao, times(1)).getSalesBySalesId(any());
+    }
+
+    @Test
+    public void testGetSalesReportDataBySales_givenASales_thenReturnSalesReportDataAndSalesReportDaoCalled() {
+        Sales mockSales = mock(Sales.class);
+        List<SalesReportData> mockSalesReportDataList = Collections.singletonList(mock(SalesReportData.class));
+        when(salesReportDao.getReportData(any())).thenReturn(mockSalesReportDataList);
+
+        List<SalesReportData> reportData = salesApp.getSalesReportDataBySales(mockSales);
+        assertEquals(mockSalesReportDataList, reportData);
+        verify(salesReportDao, times(1)).getReportData(any());
+
+    }
+
+    @Test
+    public void testGenerateSalesActivityReport_givenSalesIdWithNull_thenWillNotCallGetSalesBySalesId() {
+        String salesId = null;
+        int maxRow = 10;
+        boolean isNatTrade = true;
+        boolean isSupervisor = true;
+        SalesApp spySalesApp = spy(new SalesApp());
+
+        spySalesApp.generateSalesActivityReport(salesId, maxRow, isNatTrade, isSupervisor);
+
+        verify(spySalesApp, times(1)).isSalesIdValid(any());
+        verify(spySalesApp, times(0)).getSalesBySalesId(any());
+    }
+
+    @Test
+    public void testGenerateSalesActivityReport_givenGetSalesByIdReturnSalesOutOfEffectiveDate_thenWillNotCallGetSalesReportDataBySales() {
+        String salesId = "S01";
+        int maxRow = 10;
+        boolean isNatTrade = true;
+        boolean isSupervisor = true;
+
+        SalesApp spySalesApp = spy(new SalesApp());
+        Sales sales = mock(Sales.class);
+        doReturn(sales).when(spySalesApp).getSalesBySalesId(any());
+        doReturn(true).when(spySalesApp).isSalesOutOfEffectiveDate(any());
+
+        spySalesApp.generateSalesActivityReport(salesId, maxRow, isNatTrade, isSupervisor);
+
+        verify(spySalesApp, times(1)).isSalesIdValid(any());
+        verify(spySalesApp, times(1)).getSalesBySalesId(any());
+        verify(spySalesApp, times(1)).isSalesOutOfEffectiveDate(any());
+        verify(spySalesApp, times(0)).getSalesReportDataBySales(any());
+    }
+
+    @Test
+    public void testGenerateSalesActivityReport_givenGetSalesByIdReturnSalesInEffectiveDate_thenWillNotCallGetSalesReportDataBySales() {
+        String salesId = "S01";
+        int maxRow = 10;
+        boolean isNatTrade = true;
+        boolean isSupervisor = true;
+
+        SalesApp spySalesApp = spy(new SalesApp());
+
+        Sales sales = mock(Sales.class);
+        doReturn(sales).when(spySalesApp).getSalesBySalesId(any());
+
+        doReturn(false).when(spySalesApp).isSalesOutOfEffectiveDate(any());
+
+        doReturn(Collections.emptyList()).when(spySalesApp).getSalesReportDataBySales(any());
+
+        doReturn(Collections.emptyList()).when(spySalesApp).getFilteredReportDataList(anyBoolean(), any());
+        doReturn(Collections.emptyList()).when(spySalesApp).getLimitedSalesReportData(anyInt(), any());
+
+        doReturn(Collections.emptyList()).when(spySalesApp).getReportHeaders(anyBoolean());
+        SalesActivityReport salesActivityReport = mock(SalesActivityReport.class);
+        doReturn(salesActivityReport).when(spySalesApp).generateReport(any(), any());
+
+        spySalesApp.generateSalesActivityReport(salesId, maxRow, isNatTrade, isSupervisor);
+
+        verify(spySalesApp, times(1)).isSalesIdValid(any());
+        verify(spySalesApp, times(1)).getSalesBySalesId(any());
+        verify(spySalesApp, times(1)).isSalesOutOfEffectiveDate(any());
+        verify(spySalesApp, times(1)).getSalesReportDataBySales(any());
+        verify(spySalesApp, times(1)).getFilteredReportDataList(anyBoolean(), any());
+        verify(spySalesApp, times(1)).getLimitedSalesReportData(anyInt(), any());
+        verify(spySalesApp, times(1)).getReportHeaders(anyBoolean());
+        verify(spySalesApp, times(1)).generateReport(any(), any());
+        verify(spySalesApp, times(1)).uploadReportAsXml(any());
+    }
+
 }
