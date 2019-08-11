@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Calendar;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -98,5 +99,29 @@ public class SalesAppTest {
         boolean isOutOfEffectiveDate = salesApp.isSalesOutOfEffectiveDate(sales);
 
         assertTrue(isOutOfEffectiveDate);
+    }
+
+    @Test
+    public void testGetReportHeaders_givenIsNatTradeTrue_thenReturnCorrectHeadersContainsTime() {
+        boolean isNatTrade = true;
+
+        List<String> reportHeaders = salesApp.getReportHeaders(isNatTrade);
+
+        assertEquals("Sales ID", reportHeaders.get(0));
+        assertEquals("Sales Name", reportHeaders.get(1));
+        assertEquals("Activity", reportHeaders.get(2));
+        assertEquals("Time", reportHeaders.get(3));
+    }
+
+    @Test
+    public void testGetReportHeaders_givenIsNatTradeFlase_thenReturnCorrectHeadersContainsLocalTime() {
+        boolean isNatTrade = false;
+
+        List<String> reportHeaders = salesApp.getReportHeaders(isNatTrade);
+
+        assertEquals("Sales ID", reportHeaders.get(0));
+        assertEquals("Sales Name", reportHeaders.get(1));
+        assertEquals("Activity", reportHeaders.get(2));
+        assertEquals("Local Time", reportHeaders.get(3));
     }
 }
