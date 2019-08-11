@@ -56,16 +56,8 @@ public class SalesApp {
     }
 
     protected boolean isSalesReportDataValid(boolean isSupervisor, SalesReportData data) {
-        if ("SalesActivity".equalsIgnoreCase(data.getType())) {
-            if (data.isConfidential()) {
-                if (isSupervisor) {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        }
-        return false;
+        final String ALLOWED_TYPE = "SalesActivity";
+        return ALLOWED_TYPE.equalsIgnoreCase(data.getType()) && (!data.isConfidential() || isSupervisor);
     }
 
     protected void uploadReportAsXml(SalesActivityReport report) {
