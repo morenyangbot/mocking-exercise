@@ -31,11 +31,7 @@ public class SalesApp {
 
         List<SalesReportData> filteredReportDataList = getFilteredReportDataList(isSupervisor, reportDataList);
 
-        List<SalesReportData> tempList = new ArrayList<SalesReportData>();
-        for (int i = 0; i < reportDataList.size() || i < maxRow; i++) {
-            tempList.add(reportDataList.get(i));
-        }
-        filteredReportDataList = tempList;
+        filteredReportDataList = getLimitedSalesReportData(maxRow, reportDataList);
 
         List<String> headers = getReportHeaders(isNatTrade);
 
@@ -43,6 +39,15 @@ public class SalesApp {
 
         uploadReportAsXml(report);
 
+    }
+
+    protected List<SalesReportData> getLimitedSalesReportData(int maxRow, List<SalesReportData> reportDataList) {
+        List<SalesReportData> tempList = new ArrayList<SalesReportData>();
+        // the origin logic was wrong and may case IndexOutOfBoundsException, so I change || to &&
+        for (int i = 0; i < reportDataList.size() && i < maxRow; i++) {
+            tempList.add(reportDataList.get(i));
+        }
+        return tempList;
     }
 
     protected List<SalesReportData> getFilteredReportDataList(boolean isSupervisor, List<SalesReportData> reportDataList) {

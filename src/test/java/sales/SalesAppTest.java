@@ -8,6 +8,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -227,5 +228,27 @@ public class SalesAppTest {
         assertEquals(validSalesReportData, filteredReportDataList.get(2));
         verify(spySalesApp, times(3)).isSalesReportDataValid(isSupervisor, validSalesReportData);
         verify(spySalesApp, times(2)).isSalesReportDataValid(isSupervisor, wrongSalesReportData);
+    }
+
+    @Test
+    public void testGetLimitedSalesReportData_givenMaxRow1AndReportListWithSize2_thenReturnListWithSize1() {
+        SalesReportData salesReportData = mock(SalesReportData.class);
+        List<SalesReportData> salesReportDataListSize2 = Arrays.asList(salesReportData, salesReportData);
+        int maxRow = 1;
+
+        List<SalesReportData> limitedSalesReportData = salesApp.getLimitedSalesReportData(maxRow, salesReportDataListSize2);
+
+        assertEquals(1, limitedSalesReportData.size());
+    }
+
+    @Test
+    public void testGetLimitedSalesReportData_givenMaxRow2AndReportListWithSize1_thenReturnListWithSize2() {
+        SalesReportData salesReportData = mock(SalesReportData.class);
+        List<SalesReportData> salesReportDataListSize1 = Collections.singletonList(salesReportData);
+        int maxRow = 2;
+
+        List<SalesReportData> limitedSalesReportData = salesApp.getLimitedSalesReportData(maxRow, salesReportDataListSize1);
+
+        assertEquals(1, limitedSalesReportData.size());
     }
 }
