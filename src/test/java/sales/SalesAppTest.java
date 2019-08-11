@@ -32,6 +32,24 @@ public class SalesAppTest {
 
 
     @Test
+    public void testIsSalesIdValid_givenSalesWithIdNull_thenReturnFalse() {
+        String wrongId = null;
+
+        boolean salesIdValid = salesApp.isSalesIdValid(wrongId);
+
+        assertFalse(salesIdValid);
+    }
+
+    @Test
+    public void testIsSalesIdValid_givenSalesWithIdNotNull_thenReturnTrue() {
+        String acceptableId = "I123";
+
+        boolean salesIdValid = salesApp.isSalesIdValid(acceptableId);
+
+        assertTrue(salesIdValid);
+    }
+
+    @Test
     public void testIsSalesOutOfEffectiveDate_givenEffectiveStartDateIsYesterdayAndEffectiveEndDateIsTomorrow_thenReturnFalse() {
         Calendar yesterday = Calendar.getInstance();
         yesterday.add(Calendar.DATE, -1);

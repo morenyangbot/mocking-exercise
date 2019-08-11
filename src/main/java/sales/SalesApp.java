@@ -16,9 +16,7 @@ public class SalesApp {
 
     public void generateSalesActivityReport(String salesId, int maxRow, boolean isNatTrade, boolean isSupervisor) {
 
-        if (salesId == null) {
-            return;
-        }
+        if (!isSalesIdValid(salesId)) return;
 
         Sales sales = getSalesBySalesId(salesId);
 
@@ -60,6 +58,10 @@ public class SalesApp {
         EcmService ecmService = new EcmService();
         ecmService.uploadDocument(report.toXml());
 
+    }
+
+    protected boolean isSalesIdValid(String salesId) {
+        return salesId != null;
     }
 
     protected boolean isSalesOutOfEffectiveDate(Sales sales) {
