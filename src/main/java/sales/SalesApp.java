@@ -6,6 +6,13 @@ import java.util.Date;
 import java.util.List;
 
 public class SalesApp {
+    private SalesDao salesDao;
+    private SalesReportDao salesReportDao;
+
+    public SalesApp() {
+        salesDao = new SalesDao();
+        salesReportDao = new SalesReportDao();
+    }
 
     public void generateSalesActivityReport(String salesId, int maxRow, boolean isNatTrade, boolean isSupervisor) {
 
@@ -15,9 +22,7 @@ public class SalesApp {
 
         Sales sales = getSalesBySalesId(salesId);
 
-        Date today = new Date();
-        if (today.after(sales.getEffectiveTo())
-                || today.before(sales.getEffectiveFrom())) {
+        if (isSalesOutOfEffectiveDate(sales)) {
             return;
         }
 
@@ -57,17 +62,21 @@ public class SalesApp {
 
     }
 
-    private List<SalesReportData> getSalesReportDataBySales(Sales sales) {
-        SalesReportDao salesReportDao = new SalesReportDao();
+    protected boolean isSalesOutOfEffectiveDate(Sales sales) {
+        Date today = new Date();
+        return today.after(sales.getEffectiveTo())
+                || today.before(sales.getEffectiveFrom());
+    }
+
+    protected List<SalesReportData> getSalesReportDataBySales(Sales sales) {
         return salesReportDao.getReportData(sales);
     }
 
-    private Sales getSalesBySalesId(String salesId) {
-        SalesDao salesDao = new SalesDao();
+    protected Sales getSalesBySalesId(String salesId) {
         return salesDao.getSalesBySalesId(salesId);
     }
 
-    private SalesActivityReport generateReport(List<String> headers, List<SalesReportData> reportDataList) {
+    protected SalesActivityReport generateReport(List<String> headers, List<SalesReportData> reportDataList) {
         // TODO Auto-generated method stub
         return null;
     }
