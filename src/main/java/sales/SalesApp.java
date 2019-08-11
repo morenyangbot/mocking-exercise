@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SalesApp {
     private SalesDao salesDao;
@@ -45,14 +46,9 @@ public class SalesApp {
     }
 
     protected List<SalesReportData> getFilteredReportDataList(boolean isSupervisor, List<SalesReportData> reportDataList) {
-        List<SalesReportData> filteredReportDataList = new ArrayList<SalesReportData>();
-
-        for (SalesReportData data : reportDataList) {
-            if (isSalesReportDataValid(isSupervisor, data)) {
-                filteredReportDataList.add(data);
-            }
-        }
-        return filteredReportDataList;
+        return reportDataList.stream()
+                .filter(salesReportData -> isSalesReportDataValid(isSupervisor, salesReportData))
+                .collect(Collectors.toList());
     }
 
     protected boolean isSalesReportDataValid(boolean isSupervisor, SalesReportData data) {
